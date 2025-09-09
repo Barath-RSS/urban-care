@@ -7,27 +7,33 @@
 
 @layer base {
   :root {
-    /* Civic Color Palette */
+    /* Indian Government Inspired Color Palette */
     --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    --foreground: 220 20% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 220 20% 12%;
 
-    /* Civic Blue Primary */
-    --primary: 213 84% 50%;
+    /* Saffron Orange (Indian Flag) */
+    --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 84% 45%;
-    --primary-light: 213 84% 95%;
+    --primary-hover: 24 100% 45%;
+    --primary-light: 24 100% 96%;
 
-    /* Trust Green Secondary */
-    --secondary: 142 72% 29%;
+    /* Navy Blue (Trust & Authority) */
+    --secondary: 220 85% 35%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 142 72% 25%;
-    --secondary-light: 142 72% 95%;
+    --secondary-hover: 220 85% 30%;
+    --secondary-light: 220 85% 96%;
+
+    /* Ashoka Green */
+    --tertiary: 120 60% 35%;
+    --tertiary-foreground: 0 0% 100%;
+    --tertiary-hover: 120 60% 30%;
+    --tertiary-light: 120 60% 96%;
 
     /* Neutral Grays */
     --muted: 220 15% 96%;
@@ -171,17 +177,56 @@
     @apply bg-success/10 text-success border border-success/20;
   }
 
-  /* Animations */
+  /* Enhanced Animations */
   .fade-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.4s ease-out;
   }
 
   .slide-up {
-    animation: slideUp 0.3s ease-out;
+    animation: slideUp 0.4s ease-out;
   }
 
   .bounce-in {
-    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+  }
+
+  .slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+  }
+
+  /* Government Emblem Styles */
+  .government-emblem {
+    @apply relative flex items-center justify-center;
+  }
+
+  .government-emblem::before {
+    content: "";
+    @apply absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 animate-pulse;
+  }
+
+  /* Enhanced Card Styles */
+  .civic-card-enhanced {
+    @apply bg-gradient-to-br from-card to-primary-light/30 border border-primary/20 rounded-2xl shadow-lg;
+    @apply hover:shadow-xl hover:scale-[1.02] transition-all duration-300;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Camera Interface */
+  .camera-interface {
+    @apply relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary/10 to-primary/10;
+    @apply border-2 border-dashed border-primary/30 transition-all duration-300;
+  }
+
+  .camera-interface:hover {
+    @apply border-primary/60 bg-gradient-to-br from-secondary/20 to-primary/20;
   }
 }
 
@@ -198,4 +243,19 @@
 @keyframes bounceIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
 }

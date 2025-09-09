@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,18 +6,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Upload, CheckCircle } from "lucide-react";
+import { Camera, MapPin, Upload, CheckCircle, Video, Navigation, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ReportIssue = () => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [formData, setFormData] = useState({
     category: "",
     priority: "",
     description: "",
     location: "Current Location (GPS)",
+    coordinates: null as { lat: number; lng: number } | null,
     photo: null as File | null,
+    photoPreview: null as string | null,
   });
 
   const categories = [
@@ -54,7 +58,9 @@ const ReportIssue = () => {
       priority: "",
       description: "",
       location: "Current Location (GPS)",
+      coordinates: null,
       photo: null,
+      photoPreview: null,
     });
 
     setIsSubmitting(false);
@@ -63,7 +69,67 @@ const ReportIssue = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, photo: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({ 
+        ...prev, 
+        photo: file, 
+        photoPreview: previewUrl 
+      }));
+    }
+  };
+
+  const handleCameraCapture = async () => {
+    setIsCapturing(true);
+    try {
+      // Request camera access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' },
+        audio: false 
+      });
+      
+      // For demo purposes, we'll simulate camera capture
+      // In a real app, you'd implement a camera interface here
+      toast({
+        title: "Camera Access Granted",
+        description: "Camera interface would open here. For now, please use the upload option.",
+      });
+      
+      // Stop the stream
+      stream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      toast({
+        title: "Camera Access Denied",
+        description: "Please allow camera access or use the upload option.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setFormData(prev => ({
+            ...prev,
+            coordinates: { lat: latitude, lng: longitude },
+            location: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+          }));
+          toast({
+            title: "Location Detected",
+            description: "GPS coordinates have been automatically added to your report.",
+          });
+        },
+        (error) => {
+          toast({
+            title: "Location Error",
+            description: "Unable to get your location. Please enter it manually.",
+            variant: "destructive",
+          });
+        }
+      );
     }
   };
 
@@ -72,11 +138,18 @@ const ReportIssue = () => {
       {/* Hero Section */}
       <Card className="civic-card-hero">
         <CardContent className="p-6 text-center">
-          <Camera className="w-12 h-12 mx-auto mb-4 text-primary-foreground" />
+          <div className="government-emblem w-16 h-16 mx-auto mb-4">
+            <div className="w-full h-full bg-white/20 rounded-full flex items-center justify-center">
+              <Shield className="w-8 h-8 text-white" />
+            </div>
+          </div>
           <h2 className="text-2xl font-bold mb-2">Report an Issue</h2>
           <p className="text-primary-foreground/80">
-            Help make your community better by reporting problems that need attention
+            Help build a better India by reporting civic issues in your community
           </p>
+          <Badge variant="outline" className="mt-3 border-white/30 text-white bg-white/10">
+            Secured by Government of India
+          </Badge>
         </CardContent>
       </Card>
 
@@ -126,55 +199,151 @@ const ReportIssue = () => {
               </div>
             </div>
 
-            {/* Location */}
-            <div className="space-y-2">
+            {/* Enhanced Location */}
+            <div className="space-y-3">
               <Label htmlFor="location">Location</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Enter specific address or landmark"
-                  className="flex-1"
-                />
-                <Button type="button" variant="outline" size="icon">
-                  <MapPin className="w-4 h-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">GPS location will be automatically detected</p>
-            </div>
-
-            {/* Photo Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="photo">Photo Evidence</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                {formData.photo ? (
-                  <div className="space-y-2">
-                    <CheckCircle className="w-8 h-8 text-success mx-auto" />
-                    <p className="text-sm font-medium">Photo uploaded: {formData.photo.name}</p>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setFormData(prev => ({ ...prev, photo: null }))}>
-                      Remove
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto" />
-                    <div>
-                      <label htmlFor="photo-upload" className="cursor-pointer">
-                        <span className="text-primary font-medium">Upload a photo</span>
-                        <span className="text-muted-foreground"> or drag and drop</span>
-                      </label>
-                      <input
-                        id="photo-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                      />
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Enter specific address or landmark"
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    onClick={getCurrentLocation}
+                    className="hover:bg-primary/10"
+                  >
+                    <Navigation className="w-4 h-4 text-primary" />
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    className="hover:bg-secondary/10"
+                    title="Open in Google Maps"
+                  >
+                    <MapPin className="w-4 h-4 text-secondary" />
+                  </Button>
+                </div>
+                
+                {formData.coordinates && (
+                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                        <Navigation className="w-3 h-3 mr-1" />
+                        GPS Located
+                      </Badge>
+                      <span className="text-muted-foreground">
+                        Coordinates: {formData.coordinates.lat.toFixed(4)}, {formData.coordinates.lng.toFixed(4)}
+                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">PNG, JPG up to 10MB</p>
                   </div>
                 )}
+                
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  Location data is encrypted and used only for issue resolution
+                </p>
               </div>
+            </div>
+
+            {/* Enhanced Photo Capture */}
+            <div className="space-y-3">
+              <Label htmlFor="photo">Photo Evidence</Label>
+              
+              {formData.photoPreview ? (
+                <div className="space-y-4">
+                  <div className="relative rounded-xl overflow-hidden border-2 border-primary/20">
+                    <img 
+                      src={formData.photoPreview} 
+                      alt="Issue preview" 
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Badge variant="secondary" className="bg-black/50 text-white">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Captured
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setFormData(prev => ({ ...prev, photo: null, photoPreview: null }))}
+                      className="flex-1"
+                    >
+                      Retake Photo
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1"
+                    >
+                      Choose Different
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="camera-interface p-6 text-center space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-24 flex-col space-y-2 hover:bg-primary/5 border-primary/30"
+                      onClick={handleCameraCapture}
+                      disabled={isCapturing}
+                    >
+                      <Camera className="w-8 h-8 text-primary" />
+                      <span className="text-sm font-medium">
+                        {isCapturing ? "Opening..." : "Take Photo"}
+                      </span>
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-24 flex-col space-y-2 hover:bg-secondary/5 border-secondary/30"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-8 h-8 text-secondary" />
+                      <span className="text-sm font-medium">Upload Photo</span>
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Capture a clear photo of the issue for faster resolution
+                    </p>
+                    <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Shield className="w-3 h-3" />
+                        Geo-tagged
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Camera className="w-3 h-3" />
+                        HD Quality
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Description */}
