@@ -6,6 +6,7 @@ import IssuesManagement from "@/components/admin/IssuesManagement";
 import DepartmentAssignments from "@/components/admin/DepartmentAssignments";
 import Analytics from "@/components/admin/Analytics";
 import Settings from "@/components/admin/Settings";
+import WorkerAssignment from "@/components/admin/WorkerAssignment";
 
 const AdminPortal = () => {
   return (
@@ -16,6 +17,7 @@ const AdminPortal = () => {
         <Route path="/map" element={<LiveMap />} />
         <Route path="/issues" element={<IssuesManagement />} />
         <Route path="/departments" element={<DepartmentAssignments />} />
+        <Route path="/workers" element={<WorkerAssignment />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>

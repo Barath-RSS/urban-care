@@ -5,12 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Download, Eye, User, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Search, Filter, Download, Eye, User, Calendar, AlertTriangle, Settings } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const IssuesManagement = () => {
   const [selectedIssues, setSelectedIssues] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
 
   const issues = [
     {
@@ -117,7 +121,8 @@ const IssuesManagement = () => {
                          issue.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          issue.reportId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || issue.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesPriority = priorityFilter === "all" || issue.priority === priorityFilter;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
   const handleSelectAll = (checked: boolean) => {
@@ -184,6 +189,17 @@ const IssuesManagement = () => {
                 <SelectItem value="resolved">Resolved</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Priority</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -207,7 +223,43 @@ const IssuesManagement = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button size="sm">Assign</Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Settings className="w-4 h-4 mr-1" />
+                      Set Priority
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Set Priority Level</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Priority Level</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="critical">Critical</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={() => {
+                        toast({
+                          title: "Priority Updated",
+                          description: `Priority set for ${selectedIssues.length} issue(s)`,
+                        });
+                      }}>
+                        Update Priority
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="outline" size="sm">Mark Resolved</Button>
               </div>
             </div>

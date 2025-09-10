@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Plus, Map, FileText, Bell, User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Plus, Map, FileText, Bell, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 interface CitizenLayoutProps {
   children: ReactNode;
@@ -9,6 +11,15 @@ interface CitizenLayoutProps {
 
 const CitizenLayout = ({ children }: CitizenLayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "Thank you for using CivicConnect",
+    });
+    navigate("/");
+  };
 
   const navItems = [
     { path: "/citizen/report", icon: Plus, label: "Report" },
@@ -25,11 +36,16 @@ const CitizenLayout = ({ children }: CitizenLayoutProps) => {
       <header className="bg-card border-b border-border p-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-primary">CivicConnect</h1>
-          <Link to="/citizen/profile">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-primary-foreground" />
-            </div>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/citizen/profile">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-primary-foreground" />
+              </div>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Map, 
@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -20,13 +21,23 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = () => {
+    toast({
+      title: "Admin Logout",
+      description: "Session ended successfully",
+    });
+    navigate("/");
+  };
 
   const navItems = [
     { path: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { path: "/admin/map", icon: Map, label: "Live Map" },
     { path: "/admin/issues", icon: FileText, label: "Issues" },
     { path: "/admin/departments", icon: Users, label: "Departments" },
+    { path: "/admin/workers", icon: Users, label: "Workers" },
     { path: "/admin/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/admin/settings", icon: Settings, label: "Settings" },
   ];
@@ -79,18 +90,17 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         {/* Sidebar Footer */}
         <div className="p-2 border-t border-border">
-          <Link to="/">
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-3",
-                !sidebarOpen && "justify-center"
-              )}
-            >
-              <LogOut className="w-4 h-4" />
-              {sidebarOpen && <span>Exit Portal</span>}
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className={cn(
+              "w-full justify-start gap-3",
+              !sidebarOpen && "justify-center"
+            )}
+          >
+            <LogOut className="w-4 h-4" />
+            {sidebarOpen && <span>Logout</span>}
+          </Button>
         </div>
       </aside>
 
