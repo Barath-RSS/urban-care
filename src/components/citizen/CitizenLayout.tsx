@@ -4,6 +4,7 @@ import { Plus, Map, FileText, Bell, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface CitizenLayoutProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ const CitizenLayout = ({ children }: CitizenLayoutProps) => {
   const handleLogout = () => {
     toast({
       title: "Logged Out",
-      description: "Thank you for using CivicConnect",
+      description: "Thank you for using Urban Care",
     });
     navigate("/");
   };
@@ -33,16 +34,19 @@ const CitizenLayout = ({ children }: CitizenLayoutProps) => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Header */}
-      <header className="bg-card border-b border-border p-4 sticky top-0 z-40">
+      <header className="bg-card/95 backdrop-blur-sm border-b border-border p-4 sticky top-0 z-40 transition-all duration-300">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-primary">CivicConnect</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Urban Care
+          </h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link to="/citizen/profile">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:scale-105 transition-transform">
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="hover:bg-destructive/10 hover:text-destructive transition-colors">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>

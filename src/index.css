@@ -98,11 +98,21 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Dark mode: Keep Indian flag colors but inverted */
+    --primary: 24 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 24 100% 55%;
+    --primary-light: 24 100% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 85% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 220 85% 40%;
+    --secondary-light: 220 85% 8%;
+
+    --tertiary: 120 60% 45%;
+    --tertiary-foreground: 0 0% 100%;
+    --tertiary-hover: 120 60% 40%;
+    --tertiary-light: 120 60% 8%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -110,12 +120,15 @@
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --success: 142 72% 45%;
+    --warning: 45 93% 57%;
+    --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -124,6 +137,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
   }
 }
 
@@ -133,7 +151,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-inter transition-colors duration-300;
+  }
+  
+  html {
+    @apply scroll-smooth;
   }
 }
 
@@ -179,27 +201,39 @@
 
   /* Enhanced Animations */
   .fade-in {
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.6s ease-out;
   }
 
   .slide-up {
-    animation: slideUp 0.4s ease-out;
+    animation: slideUp 0.5s ease-out;
   }
 
   .bounce-in {
-    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .scale-in {
-    animation: scaleIn 0.3s ease-out;
+    animation: scaleIn 0.4s ease-out;
   }
 
   .slide-in-right {
-    animation: slideInRight 0.5s ease-out;
+    animation: slideInRight 0.6s ease-out;
   }
 
   .slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
+    animation: slideInLeft 0.6s ease-out;
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .shimmer {
+    animation: shimmer 2s ease-in-out infinite;
   }
 
   /* Government Emblem Styles */
@@ -258,4 +292,19 @@
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-30px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

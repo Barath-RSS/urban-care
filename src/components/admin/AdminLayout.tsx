@@ -8,12 +8,15 @@ import {
   BarChart3, 
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -27,7 +30,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const handleLogout = () => {
     toast({
       title: "Admin Logout",
-      description: "Session ended successfully",
+      description: "Urban Care Municipal session ended",
     });
     navigate("/");
   };
@@ -55,12 +58,23 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             {sidebarOpen && (
-              <h1 className="text-lg font-semibold text-primary">Admin Portal</h1>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-primary" />
+                  <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Urban Care
+                  </h1>
+                </div>
+                <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                  Municipal Portal
+                </Badge>
+              </div>
             )}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="hover:bg-primary/10"
             >
               <Menu className="w-4 h-4" />
             </Button>
@@ -75,10 +89,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
                   isActive(item.path)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
                 )}
               >
                 <item.icon className="w-4 h-4 flex-shrink-0" />
@@ -107,14 +121,18 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-card border-b border-border p-4">
+        <header className="bg-card/95 backdrop-blur-sm border-b border-border p-4 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-primary">
               {navItems.find(item => isActive(item.path))?.label || "Dashboard"}
             </h2>
             <div className="flex items-center gap-4">
-              <div className="text-sm text-muted-foreground">
-                Municipal Admin
+              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-muted-foreground" />
+                <div className="text-sm text-muted-foreground">
+                  Municipal Admin
+                </div>
               </div>
             </div>
           </div>

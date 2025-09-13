@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Shield, Smartphone, Monitor, Eye, EyeOff, User, Phone, MapPin, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,8 +35,18 @@ const Login = () => {
     }));
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
+    return phoneRegex.test(phone.replace(/\D/g, ''));
+  };
+
   const handleCitizenLogin = () => {
-    // Validate required fields
+    // Enhanced validation
     if (!loginData.email || !loginData.password || !loginData.phone || !loginData.name) {
       toast({
         title: "Missing Information",
@@ -45,15 +56,42 @@ const Login = () => {
       return;
     }
 
+    if (!validateEmail(loginData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!validatePhone(loginData.phone)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid 10-digit Indian mobile number",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (loginData.password.length < 6) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Login Successful",
-      description: "Welcome to CivicConnect Citizen App",
+      description: "Welcome to Urban Care Citizen App",
     });
     navigate("/citizen");
   };
 
   const handleAdminLogin = () => {
-    // Validate required fields
+    // Enhanced validation for admin
     if (!loginData.email || !loginData.password || !loginData.employeeId || !loginData.department) {
       toast({
         title: "Missing Information", 
@@ -63,15 +101,38 @@ const Login = () => {
       return;
     }
 
+    if (!validateEmail(loginData.email) || !loginData.email.includes('.gov.in')) {
+      toast({
+        title: "Invalid Official Email",
+        description: "Please use your official government email address (.gov.in)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (loginData.employeeId.length < 6) {
+      toast({
+        title: "Invalid Employee ID",
+        description: "Employee ID must be at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Admin Login Successful",
-      description: "Welcome to Municipal Admin Portal",
+      description: "Welcome to Urban Care Municipal Portal",
     });
     navigate("/admin");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-light to-secondary-light p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary-light via-background to-secondary-light p-4 flex items-center justify-center transition-all duration-500">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md space-y-6 fade-in">
         {/* Government Header */}
         <div className="text-center space-y-4">
@@ -84,7 +145,7 @@ const Login = () => {
             Government of India Digital Initiative
           </Badge>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            CivicConnect
+            Urban Care
           </h1>
           <p className="text-sm text-muted-foreground">
             Secure Login Portal

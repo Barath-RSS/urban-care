@@ -6,14 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Upload, CheckCircle, Video, Navigation, Shield } from "lucide-react";
+import { Camera, MapPin, Upload, CheckCircle, Video, Navigation, Shield, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import CameraCapture from "@/components/CameraCapture";
 
 const ReportIssue = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const [formData, setFormData] = useState({
     category: "",
     priority: "",
@@ -22,6 +23,7 @@ const ReportIssue = () => {
     coordinates: null as { lat: number; lng: number } | null,
     photo: null as File | null,
     photoPreview: null as string | null,
+    metadata: null as any,
   });
 
   const categories = [
@@ -61,6 +63,7 @@ const ReportIssue = () => {
       coordinates: null,
       photo: null,
       photoPreview: null,
+      metadata: null,
     });
 
     setIsSubmitting(false);
@@ -78,33 +81,26 @@ const ReportIssue = () => {
     }
   };
 
-  const handleCameraCapture = async () => {
-    setIsCapturing(true);
-    try {
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' },
-        audio: false 
-      });
-      
-      // For demo purposes, we'll simulate camera capture
-      // In a real app, you'd implement a camera interface here
-      toast({
-        title: "Camera Access Granted",
-        description: "Camera interface would open here. For now, please use the upload option.",
-      });
-      
-      // Stop the stream
-      stream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      toast({
-        title: "Camera Access Denied",
-        description: "Please allow camera access or use the upload option.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCapturing(false);
-    }
+  const handleCameraCapture = (photoData: { file: File; preview: string; metadata: any }) => {
+    setFormData(prev => ({
+      ...prev,
+      photo: photoData.file,
+      photoPreview: photoData.preview,
+      metadata: photoData.metadata,
+      // Update coordinates if photo has geo-location
+      coordinates: photoData.metadata.location || prev.coordinates
+    }));
+    
+    toast({
+      title: "Photo Captured Successfully",
+      description: photoData.metadata.geoTagged ? "Photo captured with GPS location" : "Photo captured",
+    });
+  };
+
+  const openGoogleMaps = () => {
+    const query = encodeURIComponent(formData.location);
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    window.open(googleMapsUrl, '_blank');
   };
 
   const getCurrentLocation = () => {
@@ -225,8 +221,9 @@ const ReportIssue = () => {
                     size="icon"
                     className="hover:bg-secondary/10"
                     title="Open in Google Maps"
+                    onClick={openGoogleMaps}
                   >
-                    <MapPin className="w-4 h-4 text-secondary" />
+                    <ExternalLink className="w-4 h-4 text-secondary" />
                   </Button>
                 </div>
                 
@@ -293,39 +290,24 @@ const ReportIssue = () => {
                 </div>
               ) : (
                 <div className="camera-interface p-6 text-center space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-24 flex-col space-y-2 hover:bg-primary/5 border-primary/30"
-                      onClick={handleCameraCapture}
-                      disabled={isCapturing}
-                    >
-                      <Camera className="w-8 h-8 text-primary" />
-                      <span className="text-sm font-medium">
-                        {isCapturing ? "Opening..." : "Take Photo"}
-                      </span>
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-24 flex-col space-y-2 hover:bg-secondary/5 border-secondary/30"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="w-8 h-8 text-secondary" />
-                      <span className="text-sm font-medium">Upload Photo</span>
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-24 flex-col space-y-2 hover:bg-primary/5 border-primary/30 transition-all duration-300 hover:scale-105"
+                    onClick={() => setShowCamera(true)}
+                  >
+                    <Camera className="w-8 h-8 text-primary" />
+                    <span className="text-sm font-medium">Take Photo</span>
+                  </Button>
                   
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      Capture a clear photo of the issue for faster resolution
+                      Capture a clear photo of the issue with automatic geo-tagging
                     </p>
                     <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Shield className="w-3 h-3" />
-                        Geo-tagged
+                        GPS Auto-tagged
                       </div>
                       <div className="flex items-center gap-1">
                         <Camera className="w-3 h-3" />
@@ -333,15 +315,6 @@ const ReportIssue = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
                 </div>
               )}
             </div>
@@ -369,6 +342,13 @@ const ReportIssue = () => {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Camera Capture Component */}
+      <CameraCapture 
+        isOpen={showCamera}
+        onCapture={handleCameraCapture}
+        onClose={() => setShowCamera(false)}
+      />
     </div>
   );
 };
