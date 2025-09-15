@@ -119,11 +119,19 @@ const Login = () => {
       return;
     }
 
-    toast({
-      title: "Admin Login Successful",
-      description: "Welcome to Urban Care Municipal Portal",
-    });
-    navigate("/admin");
+    if (loginData.department === "worker") {
+      toast({
+        title: "Worker Login Successful",
+        description: "Welcome to Urban Care Worker Portal",
+      });
+      navigate("/worker");
+    } else {
+      toast({
+        title: "Admin Login Successful", 
+        description: "Welcome to Urban Care Municipal Portal",
+      });
+      navigate("/admin");
+    }
   };
 
   return (
@@ -327,6 +335,7 @@ const Login = () => {
                           <SelectItem value="sanitation">Sanitation Department</SelectItem>
                           <SelectItem value="parks">Parks & Recreation</SelectItem>
                           <SelectItem value="admin">Administration</SelectItem>
+                          <SelectItem value="worker">Field Worker</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

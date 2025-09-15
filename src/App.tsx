@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import CitizenApp from "./pages/CitizenApp";
 import AdminPortal from "./pages/AdminPortal";
+import WorkerPortal from "./pages/WorkerPortal";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import SplashScreen from "./components/SplashScreen";
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/citizen/*" element={<CitizenApp />} />
             <Route path="/admin/*" element={<AdminPortal />} />
+            <Route path="/worker/*" element={<WorkerPortal />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
