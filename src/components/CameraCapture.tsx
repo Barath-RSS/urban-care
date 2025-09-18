@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Camera, RotateCcw, Check, X, MapPin, Clock } from "lucide-react";
@@ -125,11 +125,16 @@ const CameraCapture = ({ onCapture, onClose, isOpen }: CameraCaptureProps) => {
   };
 
   // Start camera when component opens
-  useState(() => {
+  useEffect(() => {
     if (isOpen && !stream) {
       startCamera();
     }
-  });
+    return () => {
+      if (stream) {
+        stopCamera();
+      }
+    };
+  }, [isOpen, stream, startCamera, stopCamera]);
 
   if (!isOpen) return null;
 
